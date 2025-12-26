@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pink Noise App to work on Chinese phones also</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3498db">
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            margin: 0;
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 50px;
+            border: none;
+            background-color: #4e4e91;
+            color: white;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #6363b3;
+        }
+        .status {
+            margin-top: 20px;
+            font-style: italic;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Pink Noise</h1>
+    <button id="noiseBtn">Start Sound</button>
+    <p class="status" id="statusText">Sound is stopped</p>
+
+    <script>
+        let audioContext;
+        let noiseNode;
+        let isPlaying = false;
+
+        const btn = document.getElementById('noiseBtn');
+        const statusText = document.getElementById('statusText');
+
+        function createPinkNoiseNode(context) {
+            const bufferSize = 4096;
+            // Pink noise algorithm (Voss-McCartney)
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            
+            const node = context.createScriptProcessor(bufferSize, 1, 1);
+            node.onaudioprocess = function(e) {
+                const output = e.outputBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    b0 = 0.99886 * b0 + white * 0.0555179;
+                    b1 = 0.99332 * b1 + white * 0.0750759;
+                    b2 = 0.96900 * b2 + white * 0.1538520;
+                    b3 = 0.86650 * b3 + white * 0.3104856;
+                    b4 = 0.55000 * b4 + white * 0.5329522;
+                    b5 = -0.7616 * b5 - white * 0.0168980;
+                    output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                    output[i] *= 0.11; // Adjust volume to prevent clipping
+                    b6 = white * 0.115926;
+                }
+            };
+            return node;
+        }
+
+        btn.addEventListener('click', () => {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (!isPlaying) {
+                noiseNode = createPinkNoiseNode(audioContext);
+                noiseNode.connect(audioContext.destination);
+                btn.textContent = "Stop Sound";
+                statusText.textContent = "Running... Sleep well.";
+                isPlaying = true;
+            } else {
+                noiseNode.disconnect();
+                btn.textContent = "Start Sound";
+                statusText.textContent = "Sound is stopped";
+                isPlaying = false;
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+    <script>
+        // This part is CRUCIAL: It keeps your Service Worker (sw.js) running 
+        // so the app stays "installable" and works offline.
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('SW active'))
+                    .catch(err => console.log('SW failed', err));
+            });
+        }
+    </script>
+</body>
+</html>

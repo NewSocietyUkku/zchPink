@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pink Noise App to work on Chinese phones also</title>
-    
+    <title>Pink Noise</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3498db">
     <style>
@@ -29,14 +28,8 @@
             color: white;
             transition: background 0.3s;
         }
-        button:hover {
-            background-color: #6363b3;
-        }
-        .status {
-            margin-top: 20px;
-            font-style: italic;
-            color: #888;
-        }
+        button:hover { background-color: #6363b3; }
+        .status { margin-top: 20px; font-style: italic; color: #888; }
     </style>
 </head>
 <body>
@@ -55,9 +48,7 @@
 
         function createPinkNoiseNode(context) {
             const bufferSize = 4096;
-            // Pink noise algorithm (Voss-McCartney)
             let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-            
             const node = context.createScriptProcessor(bufferSize, 1, 1);
             node.onaudioprocess = function(e) {
                 const output = e.outputBuffer.getChannelData(0);
@@ -70,7 +61,7 @@
                     b4 = 0.55000 * b4 + white * 0.5329522;
                     b5 = -0.7616 * b5 - white * 0.0168980;
                     output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                    output[i] *= 0.11; // Adjust volume to prevent clipping
+                    output[i] *= 0.11;
                     b6 = white * 0.115926;
                 }
             };
@@ -81,7 +72,6 @@
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
-
             if (!isPlaying) {
                 noiseNode = createPinkNoiseNode(audioContext);
                 noiseNode.connect(audioContext.destination);
@@ -94,9 +84,9 @@
                 statusText.textContent = "Sound is stopped";
                 isPlaying = false;
             }
-        
-        // This part is CRUCIAL: It keeps your Service Worker (sw.js) running 
-        // so the app stays "installable" and works offline.
+        });
+
+        // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')

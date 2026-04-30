@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.newsocietyukku.zchpink",
+      "sha256_cert_fingerprints": [
+        "77:4F:28:F8:01:FD:38:2D:18:43:09:2A:DB:C3:3A:88:2C:5F:54:DE:69:40:6B:59:CE:F6:02:56:47:7A:CA:4D"
+      ]
+    }
+  }
+]
